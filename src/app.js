@@ -1,11 +1,10 @@
 import express from 'express'
+import garlandRoutes from './routes/garlands.routes.js'
 
 const app = express()
 
-app.get('/',(req,res)=>{
-    res.send("Welcome to my API")
-})
+app.use(express.json())
 
-
+app.use('/api/garland',garlandRoutes)
 
 export default app
