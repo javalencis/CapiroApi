@@ -11,14 +11,14 @@ const alertSchema = new Schema({
         require: true,
         trim: true
     },
-    alerta: {
+    descripcion: {
         type: String,
         require: true,
         trim: true
     },
     estado: {
         type:Boolean,
-        require:true,
+
         default:false,
         trim:true
     }
