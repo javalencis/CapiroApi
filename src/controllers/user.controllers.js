@@ -4,6 +4,14 @@ import bcrypt from 'bcryptjs'
 
 export const register = async(req,res) =>{
     const {username,password,name,role} = req.body
+    if(req.user.role !== 'admin'){
+        return res.json({
+            status:false,
+            message:"Permiso denegado"
+        })
+    }
+
+
     try {
         const passwordHash = await bcrypt.hash(password,10)
 
@@ -78,7 +86,7 @@ export const login = async(req,res) =>{
 }
 export const profile = async(req,res) =>{
     const userFound = await User.findById(req.user.id).select({password:0})
-    
+
     if(!userFound){
         return res.json({
             status:false,
