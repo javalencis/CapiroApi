@@ -22,6 +22,16 @@ const alertSchema = new Schema({
         default:false,
         trim:true
     }
+    ,
+    usuario:{
+        type:{
+            _id:Schema.Types.ObjectId,
+            usuario:String,
+            nombre:String
+        },
+        ref: 'User',
+        default:null
+    }
 }, {
     timestamps: true
 }
