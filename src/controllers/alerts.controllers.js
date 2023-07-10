@@ -1,13 +1,21 @@
 import Alert from '../models/alert.model.js'
+import app from '../app.js'
 
 export const findAlerts = async(req,res)=>{
-    //Falta modificar para hacer Server-sent events
-    try {
+
+    res.writeHead(200,{
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection':'keep-alive'
+    })
+
+    const alerts = await Alert.find()
+    res.write(`data: ${JSON.stringify(alerts)}\n\n`)
+    app.on('alert',async()=>{
         const alerts = await Alert.find()
-        res.json(alerts)
-    } catch (error) {
-        console.log(error)
-    }
+        res.write(`data: ${JSON.stringify(alerts)}\n\n`)
+    })
+  
 }
 
 export const updateAlert = async (req,res)=>{
@@ -20,6 +28,7 @@ export const updateAlert = async (req,res)=>{
     const alertUpdated = await Alert.findByIdAndUpdate(id,{estado,user},{
         new:true
     })
+    app.emit('alert')
 
     res.status(200).json({
         status:true,
@@ -33,6 +42,7 @@ export const createAlert = async(req,res)=>{
     try {
         const newAlert = new Alert(req.body)
         const alertSaved = await newAlert.save()
+        app.emit('alert')
         res.status(200).json({
             status:true,
             message:"Alerta agregada",

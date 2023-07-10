@@ -2,7 +2,7 @@ import mqtt from 'mqtt'
 import Garland from '../models/garland.model.js'
 import Alert from '../models/alert.model.js'
 import Register from '../models/register.model.js'
-
+import app from '../app.js'
 
 
 const topicGuirnaldas = 'guirnaldas'
@@ -53,9 +53,13 @@ client.on('message', async (topic, message) => {
                 bloque: messageReceive.bloque,
                 guirnalda: messageReceive.guirnalda
             }, messageReceive)
+            console.log(messageReceive)
+        app.emit('garland')
     }else if(topic === topicAlertas){
         const newAlert = new Alert(messageReceive)
         await newAlert.save()
+        app.emit('alert')
+
     }else if(topic === topicRegistros){
         const newRegister = new Register(messageReceive)
         await newRegister.save()

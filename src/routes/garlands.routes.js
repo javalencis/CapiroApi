@@ -6,8 +6,8 @@ import { validateToken } from '../middlewares/validateToken.js'
 
 const router = Router()
 
-router.use(validateToken)
 router.get('/',garlandControllers.findGarlands)
+router.use(validateToken)
 router.post('/',garlandControllers.createGarland)
 router.put('/:id',garlandControllers.updateGarland)
 router.delete('/:id',garlandControllers.deleteGarland)
