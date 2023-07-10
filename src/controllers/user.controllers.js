@@ -71,7 +71,9 @@ export const login = async(req,res) =>{
             user:{
                 id:userFound._id,
                 username:userFound.username,
-                role:userFound.role
+                role:userFound.role,
+                name:userFound.name
+
             },
             token
         })

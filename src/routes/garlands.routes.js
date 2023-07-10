@@ -2,9 +2,11 @@ import {Router} from 'express'
 
 import * as garlandControllers from '../controllers/garlands.controllers.js'
 
+import { validateToken } from '../middlewares/validateToken.js'
+
 const router = Router()
 
-
+router.use(validateToken)
 router.get('/',garlandControllers.findGarlands)
 router.post('/',garlandControllers.createGarland)
 router.put('/:id',garlandControllers.updateGarland)

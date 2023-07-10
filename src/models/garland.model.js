@@ -26,6 +26,7 @@ const garlandSchema = new Schema({
         type:Number,
         require:true,
         trim:true
+    
     }
 },{
     timestamps:true

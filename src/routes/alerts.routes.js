@@ -3,10 +3,11 @@ import {findAlerts,updateAlert,createAlert} from '../controllers/alerts.controll
 import { validateToken } from '../middlewares/validateToken.js'
 const router = Router()
 
-router.use(validateToken)
-
-router.post('/',createAlert)
 router.get('/',findAlerts)
+
+
+router.use(validateToken)
+router.post('/',createAlert)
 router.put('/',updateAlert)
 
 

@@ -5,7 +5,7 @@ export const validateToken = (req,res,next) =>{
     if(!token){
         return res.json({
             status:false,
-            message:"Error en la cabecera athorization"
+            message:"Error en la cabecera authorization"
         })
     }
 

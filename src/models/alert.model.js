@@ -21,6 +21,13 @@ const alertSchema = new Schema({
 
         default:false,
         trim:true
+    },
+    edicion:{
+        type:{
+            componente:String,
+            tipo:String
+        },
+        default:null
     }
     ,
     usuario:{
