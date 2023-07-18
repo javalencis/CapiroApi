@@ -48,6 +48,14 @@ client.on('connect', () => {
 client.on('message', async (topic, message) => {
     const messageReceive = JSON.parse(message.toString());
     if (topic === topicGuirnaldas) {
+        const garland = await Garland.findOne( {
+            bloque: messageReceive.bloque,
+            guirnalda: messageReceive.guirnalda
+        })
+
+        
+
+
         await Garland.findOneAndUpdate(
             {
                 bloque: messageReceive.bloque,
