@@ -48,27 +48,39 @@ client.on('connect', () => {
 client.on('message', async (topic, message) => {
     const messageReceive = JSON.parse(message.toString());
     if (topic === topicGuirnaldas) {
-        const garland = await Garland.findOne( {
+        const garland = await Garland.findOne({
             bloque: messageReceive.bloque,
             guirnalda: messageReceive.guirnalda
         })
 
-        
 
+        if (messageReceive.estado === 'on') {
+            if (messageReceive.lectura < garland.umbral) {
+                const newAlert = new Alert({
+                    bloque: messageReceive.bloque,
+                    guirnalda: messageReceive.guirnalda,
+                    estado: messageReceive.estado,
+                    descripcion:"problema guirnalda"
+      
+                })
+                await newAlert.save()
+                app.emit('alert')
+            }
+        }
 
         await Garland.findOneAndUpdate(
             {
                 bloque: messageReceive.bloque,
                 guirnalda: messageReceive.guirnalda
             }, messageReceive)
-            console.log(messageReceive)
+        console.log(messageReceive)
         app.emit('garland')
-    }else if(topic === topicAlertas){
+    } else if (topic === topicAlertas) {
         const newAlert = new Alert(messageReceive)
         await newAlert.save()
         app.emit('alert')
 
-    }else if(topic === topicRegistros){
+    } else if (topic === topicRegistros) {
         const newRegister = new Register(messageReceive)
         await newRegister.save()
     }
