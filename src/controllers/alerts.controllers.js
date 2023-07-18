@@ -19,13 +19,13 @@ export const findAlerts = async(req,res)=>{
 }
 
 export const updateAlert = async (req,res)=>{
-    const {id,estado} = req.body
-    const user = {
+    const {id,estado,edicion} = req.body
+    const usuario = {
         _id: req.user.id,
         usuario: req.user.username,
         nombre:req.user.name
     }
-    const alertUpdated = await Alert.findByIdAndUpdate(id,{estado,user},{
+    const alertUpdated = await Alert.findByIdAndUpdate(id,{estado,edicion,usuario},{
         new:true
     })
     app.emit('alert')
