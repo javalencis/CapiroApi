@@ -3,6 +3,7 @@ import Garland from '../models/garland.model.js'
 import Alert from '../models/alert.model.js'
 import Register from '../models/register.model.js'
 import app from '../app.js'
+import { generateAlert } from '../libs/functions.js'
 
 
 const topicGuirnaldas = 'guirnaldas'
@@ -31,58 +32,35 @@ client.on('connect', () => {
         }
     });
 
-    client.subscribe(topicAlertas, (err) => {
-        if (err) {
-            console.error('Error al suscribirse al tema', err);
-        }
-    });
-
-    client.subscribe(topicRegistros, (err) => {
-        if (err) {
-            console.error('Error al suscribirse al tema', err);
-        }
-    });
 });
 
 // Evento de mensaje recibido
 client.on('message', async (topic, message) => {
     const messageReceive = JSON.parse(message.toString());
     if (topic === topicGuirnaldas) {
+
+        let warning = false
         const garland = await Garland.findOne({
             bloque: messageReceive.bloque,
             guirnalda: messageReceive.guirnalda
         })
 
-
+        console.log(messageReceive)
         if (messageReceive.estado === 'on') {
-            if (messageReceive.lectura < garland.umbral) {
-                const newAlert = new Alert({
-                    bloque: messageReceive.bloque,
-                    guirnalda: messageReceive.guirnalda,
-                    estado: messageReceive.estado,
-                    descripcion:"problema guirnalda"
-      
-                })
-                await newAlert.save()
-                app.emit('alert')
-            }
+             if(generateAlert(messageReceive,garland)){
+                warning=true
+             }
         }
-
         await Garland.findOneAndUpdate(
             {
                 bloque: messageReceive.bloque,
                 guirnalda: messageReceive.guirnalda
-            }, messageReceive)
-        console.log(messageReceive)
+            }, {
+                bloque: messageReceive.bloque,
+                guirnalda: messageReceive.guirnalda,
+                estado: warning?"warning" : messageReceive.estado
+                
+            })
         app.emit('garland')
-    } else if (topic === topicAlertas) {
-        const newAlert = new Alert(messageReceive)
-        await newAlert.save()
-        app.emit('alert')
-
-    } else if (topic === topicRegistros) {
-        const newRegister = new Register(messageReceive)
-        await newRegister.save()
-    }
-
+    } 
 });

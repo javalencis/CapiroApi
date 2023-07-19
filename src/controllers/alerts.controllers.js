@@ -28,6 +28,7 @@ export const updateAlert = async (req,res)=>{
     const alertUpdated = await Alert.findByIdAndUpdate(id,{estado,edicion,usuario},{
         new:true
     })
+   
     app.emit('alert')
 
     res.status(200).json({
