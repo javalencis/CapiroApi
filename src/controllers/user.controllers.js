@@ -104,3 +104,14 @@ export const profile = async(req,res) =>{
         user:userFound
     })
 }
+
+export const findUsers = async(req,res)=>{
+
+    const users = await User.find().select({password:0})
+    res.status(200).json(
+        {
+            status:true,
+            users
+        }
+    )
+}
