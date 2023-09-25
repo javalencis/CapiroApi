@@ -19,8 +19,16 @@ export const findGarlands = async (req, res) => {
 
 }
 export const createGarland = async (req, res) => {
-
+    const {bloque,guirnalda} = req.body
     try {
+
+        const foundGarland = await Garland.findOne({bloque,guirnalda})
+        if(foundGarland){
+            return res.json({
+                status:false,
+                message:"La guirnalda ya se encuentra almacenada"
+            })
+        }
 
         const newGarland = new Garland(req.body)
 

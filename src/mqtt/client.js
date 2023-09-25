@@ -11,16 +11,24 @@ const topicAlertas = 'alertas'
 const topicRegistros = 'registros'
 
 // Configuración de la conexión MQTT
-const options = {
+/* const options = {
     port: 8883,
     clientId: 'capiro-mqtt',
     username: 'capiroapi',
     password: 'capiroapi',
 
-};
-
+}; */
+const options = {
+    // Clean session
+    clean: true,
+    connectTimeout: 4000,
+    // Authentication
+    clientId: 'emqx_test',
+    username: 'emqx',
+    password: 'public',
+  }
 // Crear el cliente MQTT
-const client = mqtt.connect('mqtts://j0e66e71.ala.us-east-1.emqxsl.com', options);
+const client = mqtt.connect('mqtt://broker.emqx.io:1883', options);
 
 // Evento de conexión establecida
 client.on('connect', () => {
@@ -64,3 +72,5 @@ client.on('message', async (topic, message) => {
         app.emit('garland')
     } 
 });
+
+export default client;
