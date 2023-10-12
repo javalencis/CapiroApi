@@ -1,14 +1,14 @@
 import mqtt from 'mqtt'
 import Garland from '../models/garland.model.js'
-import Alert from '../models/alert.model.js'
-import Register from '../models/register.model.js'
+import Control from '../models/control.model.js'
 import app from '../app.js'
 import { generateAlert } from '../libs/functions.js'
 
 
 const topicGuirnaldas = 'guirnaldas'
-const topicAlertas = 'alertas'
-const topicRegistros = 'registros'
+const topicControl = 'capiro/control/verificar'
+const topicBloques = 'capiro/control/bloques'
+
 
 // Configuración de la conexión MQTT
 /* const options = {
@@ -19,22 +19,28 @@ const topicRegistros = 'registros'
 
 }; */
 const options = {
-    // Clean session
-    clean: true,
-    connectTimeout: 4000,
-    // Authentication
-    clientId: 'emqx_test',
-    username: 'emqx',
-    password: 'public',
-  }
-// Crear el cliente MQTT
-const client = mqtt.connect('mqtt://broker.emqx.io:1883', options);
 
+    // Authentication
+    clientId: 'emqx_test-1152215097',
+
+}
+// Crear el cliente MQTT
+const client = mqtt.connect('mqtt://test.mosquitto.org:1883', options);
+console.log('Conexión MQTT establecida')
 // Evento de conexión establecida
 client.on('connect', () => {
-    console.log('Conexión MQTT establecida');
 
     client.subscribe(topicGuirnaldas, (err) => {
+        if (err) {
+            console.error('Error al suscribirse al tema', err);
+        }
+    });
+    client.subscribe(topicControl, (err) => {
+        if (err) {
+            console.error('Error al suscribirse al tema', err);
+        }
+    });
+    client.subscribe(topicBloques, (err) => {
         if (err) {
             console.error('Error al suscribirse al tema', err);
         }
@@ -55,22 +61,54 @@ client.on('message', async (topic, message) => {
 
         console.log(messageReceive)
         if (messageReceive.estado === 'on') {
-             if(generateAlert(messageReceive,garland)){
-                warning=true
-             }
+            if (generateAlert(messageReceive, garland)) {
+                warning = true
+            }
         }
         await Garland.findOneAndUpdate(
             {
                 bloque: messageReceive.bloque,
                 guirnalda: messageReceive.guirnalda
             }, {
-                bloque: messageReceive.bloque,
-                guirnalda: messageReceive.guirnalda,
-                estado: warning?"warning" : messageReceive.estado
-                
-            })
+            bloque: messageReceive.bloque,
+            guirnalda: messageReceive.guirnalda,
+            estado: warning ? "warning" : messageReceive.estado
+
+        })
         app.emit('garland')
-    } 
+    } else if (topic === topicControl) {
+
+
+        const dataControl = await Control.findOne({bloque:messageReceive.bloque, reciente: true })
+        const date = new Date();
+        
+        const controlEsp = {
+            start_time: dataControl.hora_inicio,
+            end_time: dataControl.hora_final,
+            on_time: dataControl.tiempo_encendido,
+            off_time: dataControl.tiempo_apagado,
+            date: date.getTime()/1000
+        }
+    
+        setTimeout(() => {
+            client.publish("capiro/"+messageReceive.bloque+"/control", JSON.stringify(controlEsp), (error) => {
+                if (error) {
+
+                    console.log("No se pudo enviar el mensaje");
+                    console.log(error)
+                }
+            })
+
+        }, 2000)
+
+    }else if(topic === topicBloques){
+        console.log(messageReceive)
+    }
 });
+
+client.on('close', () => {
+    console.log('Conexión MQTT cerrada inesperadamente');
+});
+
 
 export default client;

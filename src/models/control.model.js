@@ -22,6 +22,11 @@ const controlSchema = new Schema({
     reciente:{
         type:Boolean,
         default:false
+    },
+    bloque:{
+        type:Number,
+        ref:'Block',
+        required:true
     }
 },
 {
