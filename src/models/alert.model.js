@@ -9,6 +9,7 @@ const alertSchema = new Schema({
     guirnalda: {
         type: Number,
         require: true,
+        default:0,
         trim: true
     },
     descripcion: {
@@ -18,7 +19,6 @@ const alertSchema = new Schema({
     },
     estado: {
         type:Boolean,
-
         default:false,
         trim:true
     },

@@ -12,7 +12,6 @@ const blockSchema = new Schema({
         enum: ['on', 'off', 'warning'],
         default: 'off'
     }
-
 }, {
     timestamps: true
 })

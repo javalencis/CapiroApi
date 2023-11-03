@@ -1,37 +1,39 @@
 import Block from '../models/block.model.js'
 import client from '../mqtt/client.js'
-
+import app from '../app.js'
 export const findBlocks = async (req, res) => {
 
-    try {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    })
 
+
+
+
+    const blocks = await Block.find()
+    res.write(`data: ${JSON.stringify(blocks)}\n\n`)
+
+  
+    app.on('blocks',async()=>{
         const blocks = await Block.find()
+        res.write(`data: ${JSON.stringify(blocks)}\n\n`)
+    })
 
-        res.status(200).json({
-            status:true,
-            message:"Bloques encontrados",
-            blocks
-        })
-    } catch (error) {
-        res.json({
-            status:false,
-            message:'No se encontraron bloques',
-            error
-        })
-    }
 
 
 }
 
-export const saveBlock = async(req,res) =>{
-    const {bloque} = req.body
+export const saveBlock = async (req, res) => {
+    const { bloque } = req.body
     try {
 
-        const foundBlock = await Block.findOne({bloque})
-        if(foundBlock){
+        const foundBlock = await Block.findOne({ bloque })
+        if (foundBlock) {
             return res.json({
-                status:false,
-                message:"El bloque ya se encuentra almacenado"
+                status: false,
+                message: "El bloque ya se encuentra almacenado"
             })
         }
 
@@ -56,18 +58,18 @@ export const updateBlock = async (req, res) => {
 
     try {
 
-        const {bloque} = req.body
+        const { bloque } = req.body
 
-        const blockUpdated = await Block.findOneAndUpdate({bloque}, req.body, {
+        const blockUpdated = await Block.findOneAndUpdate({ bloque }, req.body, {
             new: true
         })
         const controlEsp = {
-            start_time : blockUpdated.hora_inicio,
+            start_time: blockUpdated.hora_inicio,
             end_time: blockUpdated.hora_final,
-            on_time : blockUpdated.tiempo_encendido,
-            off_time: blockUpdated.tiempo_apagado 
+            on_time: blockUpdated.tiempo_encendido,
+            off_time: blockUpdated.tiempo_apagado
         }
-        client.publish('capiro/bloques/control',JSON.stringify(controlEsp),(error)=>{
+        client.publish('capiro/bloques/control', JSON.stringify(controlEsp), (error) => {
             console.log("No se pudo enviar el mensaje");
             console.log(error)
         })
@@ -75,7 +77,7 @@ export const updateBlock = async (req, res) => {
 
             status: true,
             message: "Bloque actualizado",
-            block:blockUpdated
+            block: blockUpdated
         })
     } catch (error) {
         res.json({
